@@ -24,17 +24,23 @@ def crop_pdf_first_page(pdf_path, output_png):
 
 def count_chunks_with_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
     w, h = img.size
+    # Always use the full width, segment vertically by aspect ratio
     aspect_ratio = aspect_w / aspect_h
-    chunk_height = h
-    chunk_width = int(chunk_height * aspect_ratio)
-    if chunk_width <= 0:
-        print("Chunk width is zero or negative. Check aspect ratio.")
+    # For a segment with full width, what is the height?
+    segment_height = int(w / aspect_ratio)
+    if segment_height <= 0:
+        print("Segment height is zero or negative. Check aspect ratio.")
         return 0
-    if w < chunk_width:
-        print("Image is smaller than one chunk.")
+    if h < segment_height:
+        print("Image is smaller than one segment.")
+        percent_remaining = (h / segment_height) * 100 if segment_height > 0 else 0
+        print(f"Percentage of image remaining after last segment: {percent_remaining:.2f}%")
         return 1 if w > 0 and h > 0 else 0
-    count = w // chunk_width
-    print(f"Number of non-overlapping chunks with aspect ratio {aspect_w}:{aspect_h}: {count}")
+    count = h // segment_height
+    remaining_height = h - (count * segment_height)
+    percent_remaining = (remaining_height / h) * 100 if h > 0 else 0
+    print(f"Number of non-overlapping vertical segments with aspect ratio {aspect_w}:{aspect_h}: {count}")
+    print(f"Percentage of image remaining after last segment: {percent_remaining:.2f}%")
     return count
 
 if __name__ == "__main__":
