@@ -1,3 +1,8 @@
 # Ignore all PDF and PNG files
 *.pdf
 *.png
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
