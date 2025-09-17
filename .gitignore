@@ -1,3 +1,23 @@
 # Ignore all PDF and PNG files
 *.pdf
 *.png
+
+# Ignore Python cache and temp files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.tmp
+*.log
+*.bak
+*.swp
+
+# Ignore Flask instance and uploads
+instance/
+uploads/
+*.db
+*.sqlite3
+env/
+venv/
+.env
+.venv
