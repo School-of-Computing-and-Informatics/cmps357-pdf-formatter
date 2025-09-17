@@ -1,3 +1,4 @@
+import os
 from pdf2image import convert_from_path
 from PIL import Image
 import numpy as np
@@ -24,9 +25,7 @@ def crop_pdf_first_page(pdf_path, output_png):
 
 def count_chunks_with_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
     w, h = img.size
-    # Always use the full width, segment vertically by aspect ratio
     aspect_ratio = aspect_w / aspect_h
-    # For a segment with full width, what is the height?
     segment_height = int(w / aspect_ratio)
     if segment_height <= 0:
         print("Segment height is zero or negative. Check aspect ratio.")
@@ -76,6 +75,12 @@ def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11, prefix="segmen
     return segments
 
 if __name__ == "__main__":
-    cropped_img = crop_pdf_first_page("Jan 21.pdf", "cropped_page1.png")
-    count_chunks_with_aspect_ratio(cropped_img)
-    segment_image_by_aspect_ratio(cropped_img, 8.5, 11, prefix="page1_segment")
+    pdf_dir = "PDFS"
+    for fname in os.listdir(pdf_dir):
+        if fname.lower().endswith(".pdf"):
+            pdf_path = os.path.join(pdf_dir, fname)
+            base = os.path.splitext(fname)[0]
+            cropped_png = f"{base}_cropped.png"
+            cropped_img = crop_pdf_first_page(pdf_path, cropped_png)
+            count_chunks_with_aspect_ratio(cropped_img)
+            segment_image_by_aspect_ratio(cropped_img, 8.5, 11, prefix=f"{base}_segment")
