@@ -1,2 +1,3 @@
-# Ignore all PDF files
+# Ignore all PDF and PNG files
 *.pdf
+*.png
