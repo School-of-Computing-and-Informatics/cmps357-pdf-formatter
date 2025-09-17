@@ -43,6 +43,40 @@ def count_chunks_with_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
     print(f"Percentage of image remaining after last segment: {percent_remaining:.2f}%")
     return count
 
+def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11, prefix="segment"):
+    w, h = img.size
+    aspect_ratio = aspect_w / aspect_h
+    segment_height = int(w / aspect_ratio)
+    if segment_height <= 0:
+        print("Segment height is zero or negative. Check aspect ratio.")
+        return []
+    count = h // segment_height
+    segments = []
+    for i in range(count):
+        top = i * segment_height
+        bottom = top + segment_height
+        segment = img.crop((0, top, w, bottom))
+        filename = f"{prefix}_{i+1}.png"
+        segment.save(filename)
+        print(f"Saved segment {i+1} as {filename}")
+        segments.append(filename)
+    # Handle the last segment (remainder)
+    last_start = count * segment_height
+    if last_start < h:
+        # Crop the remainder from the end of the last segment to the bottom
+        remainder = img.crop((0, last_start, w, h))
+        # Create a new image with the same width and segment_height, fill with green
+        from PIL import Image
+        padded = Image.new("RGB", (w, segment_height), (0, 255, 0))
+        # Paste the remainder at the top
+        padded.paste(remainder, (0, 0))
+        filename = f"{prefix}_{count+1}.png"
+        padded.save(filename)
+        print(f"Saved last segment (with green padding) as {filename}")
+        segments.append(filename)
+    return segments
+
 if __name__ == "__main__":
     cropped_img = crop_pdf_first_page("Jan 21.pdf", "cropped_page1.png")
     count_chunks_with_aspect_ratio(cropped_img)
+    segment_image_by_aspect_ratio(cropped_img, 8.5, 11, prefix="page1_segment")
