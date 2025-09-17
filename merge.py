@@ -65,14 +65,13 @@ def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11, prefix="segmen
     if last_start < h:
         # Crop the remainder from the end of the last segment to the bottom
         remainder = img.crop((0, last_start, w, h))
-        # Create a new image with the same width and segment_height, fill with green
-        from PIL import Image
-        padded = Image.new("RGB", (w, segment_height), (0, 255, 0))
+        # Create a new image with the same width and segment_height, fill with white
+        padded = Image.new("RGB", (w, segment_height), (255, 255, 255))
         # Paste the remainder at the top
         padded.paste(remainder, (0, 0))
         filename = f"{prefix}_{count+1}.png"
         padded.save(filename)
-        print(f"Saved last segment (with green padding) as {filename}")
+        print(f"Saved last segment (with white padding) as {filename}")
         segments.append(filename)
     return segments
 
