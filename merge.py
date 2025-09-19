@@ -34,13 +34,16 @@ def analyze_bottom_rows(img, segment_num, threshold=240, dpi=300):
         if nonwhite < min_nonwhite:
             min_nonwhite = nonwhite
             min_row = i
-    # Draw a green line over the row with the minimum non-white pixels
+    # Draw a black line over the row with the minimum non-white pixels
     rgb_img = img.convert("RGB")
     pixels = rgb_img.load()
     for x in range(rgb_img.width):
         pixels[x, min_row] = (0, 0, 0)
-    # Overwrite the original image with the green line
+    # Overwrite the original image with the black line
     img.paste(rgb_img)
+    # Return the min_row as inches from the top
+    min_row_inches = min_row / dpi
+    return min_row_inches
 
 def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
     w, h = img.size
@@ -55,7 +58,8 @@ def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
         bottom = top + segment_height
         segment = img.crop((0, top, w, bottom))
         segments.append(segment)
-        analyze_bottom_rows(segment, i+1, dpi=300)
+        min_row_inches = analyze_bottom_rows(segment, i+1, dpi=300)
+        print(f"Segment {i+1}: min row at {min_row_inches:.2f} inches from top")
     # Handle the last segment (remainder)
     last_start = count * segment_height
     if last_start < h:
@@ -66,7 +70,8 @@ def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
         # Paste the remainder at the top
         padded.paste(remainder, (0, 0))
         segments.append(padded)
-    analyze_bottom_rows(padded, count+1, dpi=300)
+    min_row_inches = analyze_bottom_rows(padded, count+1, dpi=300)
+    print(f"Segment {count+1}: min row at {min_row_inches:.2f} inches from top")
     return segments
 
 def create_pdf_from_images(images, output_pdf, margin_in=0.5, page_w_in=8.5, page_h_in=11, dpi=300):
