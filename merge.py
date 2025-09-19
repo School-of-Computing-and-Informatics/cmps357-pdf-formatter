@@ -21,10 +21,12 @@ def crop_pdf_first_page(pdf_path):
         cropped_img = images[0]
     return cropped_img
 
-def analyze_bottom_rows(img, segment_num, threshold=240, num_rows=100):
+def analyze_bottom_rows(img, segment_num, threshold=240, dpi=300):
     gray = img.convert("L")
     arr = np.array(gray)
     h, w = arr.shape
+    # Calculate number of rows for half an inch
+    num_rows = int(0.5 * dpi)
     min_nonwhite = w  # max possible non-white per row
     min_row = h - 1
     for i in range(h-1, max(h-1-num_rows, -1), -1):
@@ -32,7 +34,13 @@ def analyze_bottom_rows(img, segment_num, threshold=240, num_rows=100):
         if nonwhite < min_nonwhite:
             min_nonwhite = nonwhite
             min_row = i
-    print(f"Segment {segment_num}: Minimum non-white pixels in bottom {num_rows} rows is {min_nonwhite} at row {min_row}")
+    # Draw a green line over the row with the minimum non-white pixels
+    rgb_img = img.convert("RGB")
+    pixels = rgb_img.load()
+    for x in range(rgb_img.width):
+        pixels[x, min_row] = (0, 0, 0)
+    # Overwrite the original image with the green line
+    img.paste(rgb_img)
 
 def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
     w, h = img.size
@@ -47,7 +55,7 @@ def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
         bottom = top + segment_height
         segment = img.crop((0, top, w, bottom))
         segments.append(segment)
-        analyze_bottom_rows(segment, i+1)
+        analyze_bottom_rows(segment, i+1, dpi=300)
     # Handle the last segment (remainder)
     last_start = count * segment_height
     if last_start < h:
@@ -58,7 +66,7 @@ def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
         # Paste the remainder at the top
         padded.paste(remainder, (0, 0))
         segments.append(padded)
-        analyze_bottom_rows(padded, count+1)
+    analyze_bottom_rows(padded, count+1, dpi=300)
     return segments
 
 def create_pdf_from_images(images, output_pdf, margin_in=0.5, page_w_in=8.5, page_h_in=11, dpi=300):
