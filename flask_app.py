@@ -114,8 +114,8 @@ UPLOAD_FORM = '''
             display: none;
         }
     </style>
-    <style>
-    /* Dark mode is now default */
+    <style id="dark-mode-style">
+    /* Dark mode */
     body {
         background: linear-gradient(120deg, #181a20 0%, #232946 100%);
         color: #e0e7ef;
@@ -162,59 +162,70 @@ UPLOAD_FORM = '''
     .footer {
         color: #a5b4fc;
     }
-    @media (prefers-color-scheme: light) {
-        body {
-            background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
-            color: #22223b;
-        }
-        .container {
-            background: #fff;
-            color: #22223b;
-            box-shadow: 0 4px 24px 0 rgba(80, 80, 180, 0.10);
-        }
-        h1 {
-            color: #3730a3;
-        }
-        .drop-area {
-            border: 2px dashed #818cf8;
-            background: #f1f5f9;
-            color: #22223b;
-        }
-        .drop-area.dragover {
-            background: #e0e7ff;
-            border-color: #6366f1;
-        }
-        .file-list li {
-            background: #eef2ff;
-            color: #22223b;
-            border: 1px solid #c7d2fe;
-        }
-        .file-list li.dragover {
-            border: 2px dashed #6366f1;
-            background: #e0e7ff;
-        }
-        .move-btn {
-            color: #6366f1;
-        }
-        .move-btn:hover {
-            background: #c7d2fe;
-        }
-        input[type="submit"] {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
-        }
-        input[type="submit"]:hover {
-            background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
-        }
-        .footer {
-            color: #64748b;
-        }
+    </style>
+    <style id="light-mode-style" disabled>
+    /* Light mode */
+    body {
+        background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+        color: #22223b;
+    }
+    .container {
+        background: #fff;
+        color: #22223b;
+        box-shadow: 0 4px 24px 0 rgba(80, 80, 180, 0.10);
+    }
+    h1 {
+        color: #3730a3;
+    }
+    .drop-area {
+        border: 2px dashed #818cf8;
+        background: #f1f5f9;
+        color: #22223b;
+    }
+    .drop-area.dragover {
+        background: #e0e7ff;
+        border-color: #6366f1;
+    }
+    .file-list li {
+        background: #eef2ff;
+        color: #22223b;
+        border: 1px solid #c7d2fe;
+    }
+    .file-list li.dragover {
+        border: 2px dashed #6366f1;
+        background: #e0e7ff;
+    }
+    .move-btn {
+        color: #6366f1;
+    }
+    .move-btn:hover {
+        background: #c7d2fe;
+    }
+    input[type="submit"] {
+        background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+        color: #fff;
+    }
+    input[type="submit"]:hover {
+        background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+    }
+    .footer {
+        color: #64748b;
     }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>PDF Formatter</h1>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <h1 style="margin-bottom: 0;">PDF Formatter</h1>
+                        <div style="position: relative; top: 0; right: 0; display: flex; align-items: center; gap: 0.3rem;">
+                                                <span class="slider-icon slider-moon" title="Dark mode" aria-label="Dark mode" style="font-size: 1.3rem;">&#x1F319;</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="slider-toggle">
+                                    <span class="slider round"></span>
+                                </label>
+                                                <span class="slider-icon slider-sun" title="Light mode" aria-label="Light mode" style="font-size: 1.3rem;">&#x2600;&#xFE0F;</span>
+                        </div>
+                </div>
         <form id="pdf-form" method="post" enctype="multipart/form-data">
             <div class="drop-area" id="drop-area">
                 <span id="drop-text">Drag & drop PDF files here or click to select</span>
@@ -225,7 +236,91 @@ UPLOAD_FORM = '''
         </form>
         <div class="footer">Your PDF stays private and is never stored.</div>
     </div>
-    <script>
+        <style>
+        .slider-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 28px;
+          width: 28px;
+          user-select: none;
+          pointer-events: none;
+        }
+                .slider-moon, .slider-sun {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 28px;
+                    width: 28px;
+                    user-select: none;
+                    pointer-events: none;
+                }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 28px;
+        }
+        .switch input {display:none;}
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #6366f1;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #a5b4fc;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        </style>
+        <script>
+            // Slider toggle event and theme switching
+            document.addEventListener('DOMContentLoaded', function() {
+                const slider = document.getElementById('slider-toggle');
+                const darkStyle = document.getElementById('dark-mode-style');
+                const lightStyle = document.getElementById('light-mode-style');
+                function setTheme(isLight) {
+                    if (isLight) {
+                        darkStyle.disabled = true;
+                        lightStyle.disabled = false;
+                        document.body.classList.add('light');
+                        document.body.classList.remove('dark');
+                    } else {
+                        darkStyle.disabled = false;
+                        lightStyle.disabled = true;
+                        document.body.classList.add('dark');
+                        document.body.classList.remove('light');
+                    }
+                }
+                if (slider) {
+                    // Default: dark mode (slider off)
+                    setTheme(false);
+                    slider.addEventListener('change', function() {
+                        if (slider.checked) {
+                            setTheme(true);
+                            console.log('right');
+                        } else {
+                            setTheme(false);
+                            console.log('left');
+                        }
+                    });
+                }
+            });
         const dropArea = document.getElementById('drop-area');
         const realInput = document.getElementById('real-file-input');
         const fileList = document.getElementById('file-list');
