@@ -72,6 +72,10 @@ UPLOAD_FORM = '''
         .file-list li.dragging {
             opacity: 0.5;
         }
+        .file-list li.dragover {
+            border: 2px dashed #6366f1;
+            background: #e0e7ff;
+        }
         .move-btn {
             background: none;
             border: none;
@@ -191,6 +195,38 @@ UPLOAD_FORM = '''
                 };
                 li.appendChild(upBtn);
                 li.appendChild(downBtn);
+
+                // Drag-and-drop attributes and handlers
+                li.setAttribute('draggable', 'true');
+                li.dataset.idx = idx;
+
+                li.addEventListener('dragstart', function(e) {
+                    li.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', idx);
+                });
+                li.addEventListener('dragend', function(e) {
+                    li.classList.remove('dragging');
+                });
+                li.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    li.classList.add('dragover');
+                });
+                li.addEventListener('dragleave', function(e) {
+                    li.classList.remove('dragover');
+                });
+                li.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    li.classList.remove('dragover');
+                    const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                    const toIdx = idx;
+                    if (fromIdx !== toIdx) {
+                        const moved = files.splice(fromIdx, 1)[0];
+                        files.splice(toIdx, 0, moved);
+                        renderFileList();
+                    }
+                });
+
                 fileList.appendChild(li);
             });
         }
