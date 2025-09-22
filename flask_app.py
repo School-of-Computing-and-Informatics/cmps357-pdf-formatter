@@ -114,6 +114,103 @@ UPLOAD_FORM = '''
             display: none;
         }
     </style>
+    <style>
+    /* Dark mode is now default */
+    body {
+        background: linear-gradient(120deg, #181a20 0%, #232946 100%);
+        color: #e0e7ef;
+    }
+    .container {
+        background: #232946;
+        color: #e0e7ef;
+        box-shadow: 0 4px 24px 0 rgba(30, 30, 60, 0.25);
+    }
+    h1 {
+        color: #a5b4fc;
+    }
+    .drop-area {
+        border: 2px dashed #6366f1;
+        background: #232946;
+        color: #e0e7ef;
+    }
+    .drop-area.dragover {
+        background: #3730a3;
+        border-color: #a5b4fc;
+    }
+    .file-list li {
+        background: #1a1b22;
+        color: #e0e7ef;
+        border: 1px solid #6366f1;
+    }
+    .file-list li.dragover {
+        border: 2px dashed #a5b4fc;
+        background: #3730a3;
+    }
+    .move-btn {
+        color: #a5b4fc;
+    }
+    .move-btn:hover {
+        background: #3730a3;
+    }
+    input[type="submit"] {
+        background: linear-gradient(90deg, #3730a3 0%, #6366f1 100%);
+        color: #fff;
+    }
+    input[type="submit"]:hover {
+        background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+    }
+    .footer {
+        color: #a5b4fc;
+    }
+    @media (prefers-color-scheme: light) {
+        body {
+            background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+            color: #22223b;
+        }
+        .container {
+            background: #fff;
+            color: #22223b;
+            box-shadow: 0 4px 24px 0 rgba(80, 80, 180, 0.10);
+        }
+        h1 {
+            color: #3730a3;
+        }
+        .drop-area {
+            border: 2px dashed #818cf8;
+            background: #f1f5f9;
+            color: #22223b;
+        }
+        .drop-area.dragover {
+            background: #e0e7ff;
+            border-color: #6366f1;
+        }
+        .file-list li {
+            background: #eef2ff;
+            color: #22223b;
+            border: 1px solid #c7d2fe;
+        }
+        .file-list li.dragover {
+            border: 2px dashed #6366f1;
+            background: #e0e7ff;
+        }
+        .move-btn {
+            color: #6366f1;
+        }
+        .move-btn:hover {
+            background: #c7d2fe;
+        }
+        input[type="submit"] {
+            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+            color: #fff;
+        }
+        input[type="submit"]:hover {
+            background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+        }
+        .footer {
+            color: #64748b;
+        }
+    }
+    </style>
 </head>
 <body>
     <div class="container">
