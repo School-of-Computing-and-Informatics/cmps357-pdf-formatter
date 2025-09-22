@@ -214,7 +214,15 @@ UPLOAD_FORM = '''
 </head>
 <body>
     <div class="container">
-        <h1>PDF Formatter</h1>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <h1 style="margin-bottom: 0;">PDF Formatter</h1>
+            <div style="position: relative; top: 0; right: 0;">
+                <label class="switch">
+                  <input type="checkbox" id="slider-toggle">
+                  <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
         <form id="pdf-form" method="post" enctype="multipart/form-data">
             <div class="drop-area" id="drop-area">
                 <span id="drop-text">Drag & drop PDF files here or click to select</span>
@@ -225,7 +233,54 @@ UPLOAD_FORM = '''
         </form>
         <div class="footer">Your PDF stays private and is never stored.</div>
     </div>
-    <script>
+        <style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 28px;
+        }
+        .switch input {display:none;}
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #6366f1;
+            transition: .4s;
+            border-radius: 28px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #a5b4fc;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        </style>
+        <script>
+                // Slider toggle event
+                document.addEventListener('DOMContentLoaded', function() {
+                        const slider = document.getElementById('slider-toggle');
+                        if (slider) {
+                                slider.addEventListener('change', function() {
+                                        if (slider.checked) {
+                                                console.log('right');
+                                        } else {
+                                                console.log('left');
+                                        }
+                                });
+                        }
+                });
         const dropArea = document.getElementById('drop-area');
         const realInput = document.getElementById('real-file-input');
         const fileList = document.getElementById('file-list');
