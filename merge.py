@@ -22,6 +22,10 @@ def crop_pdf_first_page(pdf_path):
     return cropped_img
 
 def analyze_bottom_rows(img, segment_num, threshold=240, dpi=300):
+    """
+    Analyze the bottom rows of the image to find the best place to segment (the true bottom of content).
+    Draw a black line at that row and return both the row index and inches from the top.
+    """
     gray = img.convert("L")
     arr = np.array(gray)
     h, w = arr.shape
@@ -34,16 +38,14 @@ def analyze_bottom_rows(img, segment_num, threshold=240, dpi=300):
         if nonwhite < min_nonwhite:
             min_nonwhite = nonwhite
             min_row = i
-    # Draw a black line over the row with the minimum non-white pixels
+    # Draw a black line at the detected bottom row
     rgb_img = img.convert("RGB")
     pixels = rgb_img.load()
     for x in range(rgb_img.width):
         pixels[x, min_row] = (0, 0, 0)
-    # Overwrite the original image with the black line
     img.paste(rgb_img)
-    # Return the min_row as inches from the top
     min_row_inches = min_row / dpi
-    return min_row_inches
+    return min_row, min_row_inches
 
 def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
     w, h = img.size
@@ -51,27 +53,48 @@ def segment_image_by_aspect_ratio(img, aspect_w=8.5, aspect_h=11):
     segment_height = int(w / aspect_ratio)
     if segment_height <= 0:
         return []
-    count = h // segment_height
     segments = []
-    for i in range(count):
-        top = i * segment_height
-        bottom = top + segment_height
-        segment = img.crop((0, top, w, bottom))
-        segments.append(segment)
-        min_row_inches = analyze_bottom_rows(segment, i+1, dpi=300)
-        print(f"Segment {i+1}: min row at {min_row_inches:.2f} inches from top")
-    # Handle the last segment (remainder)
-    last_start = count * segment_height
-    if last_start < h:
-        # Crop the remainder from the end of the last segment to the bottom
-        remainder = img.crop((0, last_start, w, h))
-        # Create a new image with the same width and segment_height, fill with white
+    start_row = 0
+    seg_num = 1
+    while start_row < h:
+        # Tentative bottom row for this segment
+        tentative_bottom = min(start_row + segment_height, h)
+        segment = img.crop((0, start_row, w, tentative_bottom))
+        # Analyze the bottom rows of this segment to find the true bottom
+        min_row, min_row_inches = analyze_bottom_rows(segment, seg_num, dpi=300)
+        print(f"Segment {seg_num}: min row at {min_row_inches:.2f} inches from top (relative to segment)")
+        # The true bottom in the original image is:
+        true_bottom = start_row + min_row + 1  # +1 to include the black line
+        # Crop the segment from start_row to true_bottom
+        segment_final = img.crop((0, start_row, w, true_bottom))
+        segments.append(segment_final)
+        # Prepare for next segment
+        start_row = true_bottom
+        seg_num += 1
+        # If the next segment would be too small, break
+        if h - start_row < int(0.2 * segment_height):
+            break
+    # Handle the last segment (if any rows remain)
+    if start_row < h:
+        remainder = img.crop((0, start_row, w, h))
+        # Always pad to segment_height for consistency
         padded = Image.new("RGB", (w, segment_height), (255, 255, 255))
-        # Paste the remainder at the top
         padded.paste(remainder, (0, 0))
+        # Only analyze up to the actual content height (not the padded area)
+        actual_content_height = min(remainder.height, segment_height)
+        # Draw black line at the bottom of actual content in the remainder
+        # Temporarily crop to actual content for analysis
+        content_crop = padded.crop((0, 0, w, actual_content_height))
+        min_row, min_row_inches = analyze_bottom_rows(content_crop, seg_num, dpi=300)
+        print(f"Segment {seg_num}: min row at {min_row_inches:.2f} inches from top (last segment)")
+        # Draw the black line on the padded image at min_row (if within content)
+        rgb_img = padded.convert("RGB")
+        pixels = rgb_img.load()
+        if min_row < actual_content_height:
+            for x in range(rgb_img.width):
+                pixels[x, min_row] = (0, 0, 0)
+            padded.paste(rgb_img)
         segments.append(padded)
-    min_row_inches = analyze_bottom_rows(padded, count+1, dpi=300)
-    print(f"Segment {count+1}: min row at {min_row_inches:.2f} inches from top")
     return segments
 
 def create_pdf_from_images(images, output_pdf, margin_in=0.5, page_w_in=8.5, page_h_in=11, dpi=300):
