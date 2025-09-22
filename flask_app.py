@@ -313,10 +313,10 @@ UPLOAD_FORM = '''
                     slider.addEventListener('change', function() {
                         if (slider.checked) {
                             setTheme(true);
-                            console.log('right');
+                            //console.log('right');
                         } else {
                             setTheme(false);
-                            console.log('left');
+                            //console.log('left');
                         }
                     });
                 }
