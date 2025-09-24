@@ -139,7 +139,13 @@ if __name__ == "__main__":
             cropped_img = crop_pdf_first_page(pdf_path)
             segments = segment_image_by_aspect_ratio(cropped_img, 8.5, 11)
             for i, segment in enumerate(segments):
-                text = pytesseract.image_to_string(segment, lang='eng')
+                # Preprocess: binarize (threshold) the image for better handwriting OCR
+                gray = segment.convert('L')
+                arr = np.array(gray)
+                threshold = 160
+                binarized = Image.fromarray((arr < threshold).astype('uint8') * 255)
+                config = '--oem 1 --psm 6'
+                text = pytesseract.image_to_string(binarized, lang='eng', config=config)
                 print(f"[Segment {i+1}]:\n{text.strip()}\n", flush=True)
         except Exception as e:
             print(f"Error processing {pdf_path}: {e}", flush=True)
