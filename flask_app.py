@@ -14,42 +14,50 @@ UPLOAD_FORM = '''
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PDF Formatter</title>
     <style>
+        /* Base styles - theme neutral */
         body {
-            background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
+            /* Default to dark theme to match JavaScript default */
+            background: linear-gradient(120deg, #181a20 0%, #232946 100%);
+            color: #e0e7ef;
         }
         .container {
-            background: #fff;
             padding: 2.5rem 2rem 2rem 2rem;
             border-radius: 1.2rem;
-            box-shadow: 0 4px 24px 0 rgba(80, 80, 180, 0.10);
             text-align: center;
             max-width: 400px;
             width: 100%;
+            /* Default to dark theme container */
+            background: #232946;
+            color: #e0e7ef;
+            box-shadow: 0 4px 24px 0 rgba(30, 30, 60, 0.25);
         }
         h1 {
-            color: #3730a3;
             margin-bottom: 1.2rem;
             font-size: 1.6rem;
             letter-spacing: 0.01em;
+            /* Default to dark theme heading */
+            color: #a5b4fc;
         }
         .drop-area {
-            border: 2px dashed #818cf8;
             border-radius: 0.7rem;
-            background: #f1f5f9;
             padding: 1.2rem 0.5rem;
             margin-bottom: 1.2rem;
             cursor: pointer;
             transition: background 0.2s, border-color 0.2s;
+            /* Default to dark theme drop area */
+            border: 2px dashed #6366f1;
+            background: #232946;
+            color: #e0e7ef;
         }
         .drop-area.dragover {
-            background: #e0e7ff;
-            border-color: #6366f1;
+            background: #3730a3;
+            border-color: #a5b4fc;
         }
         .file-list {
             list-style: none;
@@ -58,7 +66,6 @@ UPLOAD_FORM = '''
             min-height: 1.5rem;
         }
         .file-list li {
-            background: #eef2ff;
             border-radius: 0.4rem;
             margin-bottom: 0.5rem;
             padding: 0.5rem 0.8rem;
@@ -67,32 +74,34 @@ UPLOAD_FORM = '''
             justify-content: space-between;
             font-size: 1rem;
             cursor: grab;
-            border: 1px solid #c7d2fe;
+            /* Default to dark theme file list items */
+            background: #1a1b22;
+            color: #e0e7ef;
+            border: 1px solid #6366f1;
         }
         .file-list li.dragging {
             opacity: 0.5;
         }
         .file-list li.dragover {
-            border: 2px dashed #6366f1;
-            background: #e0e7ff;
+            border: 2px dashed #a5b4fc;
+            background: #3730a3;
         }
         .move-btn {
             background: none;
             border: none;
-            color: #6366f1;
             font-size: 1.2rem;
             cursor: pointer;
             margin-left: 0.3rem;
             padding: 0.1rem 0.3rem;
             border-radius: 0.2rem;
             transition: background 0.15s;
+            /* Default to dark theme buttons */
+            color: #a5b4fc;
         }
         .move-btn:hover {
-            background: #c7d2fe;
+            background: #3730a3;
         }
         input[type="submit"] {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
             border: none;
             border-radius: 0.4rem;
             padding: 0.7rem 2.2rem;
@@ -101,115 +110,70 @@ UPLOAD_FORM = '''
             cursor: pointer;
             transition: background 0.2s;
             box-shadow: 0 2px 8px 0 rgba(99, 102, 241, 0.10);
+            /* Default to dark theme submit button */
+            background: linear-gradient(90deg, #3730a3 0%, #6366f1 100%);
+            color: #fff;
         }
         input[type="submit"]:hover {
-            background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
         }
         .footer {
             margin-top: 1.5rem;
-            color: #64748b;
             font-size: 0.95rem;
+            /* Default to dark theme footer */
+            color: #a5b4fc;
         }
         #real-file-input {
             display: none;
         }
     </style>
-    <style id="dark-mode-style">
-    /* Dark mode */
-    body {
-        background: linear-gradient(120deg, #181a20 0%, #232946 100%);
-        color: #e0e7ef;
-    }
-    .container {
-        background: #232946;
-        color: #e0e7ef;
-        box-shadow: 0 4px 24px 0 rgba(30, 30, 60, 0.25);
-    }
-    h1 {
-        color: #a5b4fc;
-    }
-    .drop-area {
-        border: 2px dashed #6366f1;
-        background: #232946;
-        color: #e0e7ef;
-    }
-    .drop-area.dragover {
-        background: #3730a3;
-        border-color: #a5b4fc;
-    }
-    .file-list li {
-        background: #1a1b22;
-        color: #e0e7ef;
-        border: 1px solid #6366f1;
-    }
-    .file-list li.dragover {
-        border: 2px dashed #a5b4fc;
-        background: #3730a3;
-    }
-    .move-btn {
-        color: #a5b4fc;
-    }
-    .move-btn:hover {
-        background: #3730a3;
-    }
-    input[type="submit"] {
-        background: linear-gradient(90deg, #3730a3 0%, #6366f1 100%);
-        color: #fff;
-    }
-    input[type="submit"]:hover {
-        background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-    }
-    .footer {
-        color: #a5b4fc;
-    }
-    </style>
     <style id="light-mode-style" disabled>
-    /* Light mode */
+    /* Light mode - overrides default dark theme */
     body {
-        background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
-        color: #22223b;
+        background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%) !important;
+        color: #22223b !important;
     }
     .container {
-        background: #fff;
-        color: #22223b;
-        box-shadow: 0 4px 24px 0 rgba(80, 80, 180, 0.10);
+        background: #fff !important;
+        color: #22223b !important;
+        box-shadow: 0 4px 24px 0 rgba(80, 80, 180, 0.10) !important;
     }
     h1 {
-        color: #3730a3;
+        color: #3730a3 !important;
     }
     .drop-area {
-        border: 2px dashed #818cf8;
-        background: #f1f5f9;
-        color: #22223b;
+        border: 2px dashed #818cf8 !important;
+        background: #f1f5f9 !important;
+        color: #22223b !important;
     }
     .drop-area.dragover {
-        background: #e0e7ff;
-        border-color: #6366f1;
+        background: #e0e7ff !important;
+        border-color: #6366f1 !important;
     }
     .file-list li {
-        background: #eef2ff;
-        color: #22223b;
-        border: 1px solid #c7d2fe;
+        background: #eef2ff !important;
+        color: #22223b !important;
+        border: 1px solid #c7d2fe !important;
     }
     .file-list li.dragover {
-        border: 2px dashed #6366f1;
-        background: #e0e7ff;
+        border: 2px dashed #6366f1 !important;
+        background: #e0e7ff !important;
     }
     .move-btn {
-        color: #6366f1;
+        color: #6366f1 !important;
     }
     .move-btn:hover {
-        background: #c7d2fe;
+        background: #c7d2fe !important;
     }
     input[type="submit"] {
-        background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-        color: #fff;
+        background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%) !important;
+        color: #fff !important;
     }
     input[type="submit"]:hover {
-        background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+        background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%) !important;
     }
     .footer {
-        color: #64748b;
+        color: #64748b !important;
     }
     </style>
 </head>
@@ -293,31 +257,32 @@ UPLOAD_FORM = '''
             document.addEventListener('DOMContentLoaded', function() {
                 // Slider toggle event and theme switching
                 const slider = document.getElementById('slider-toggle');
-                const darkStyle = document.getElementById('dark-mode-style');
                 const lightStyle = document.getElementById('light-mode-style');
+                
                 function setTheme(isLight) {
                     if (isLight) {
-                        darkStyle.disabled = true;
+                        // Enable light mode stylesheet to override default dark theme
                         lightStyle.disabled = false;
                         document.body.classList.add('light');
                         document.body.classList.remove('dark');
                     } else {
-                        darkStyle.disabled = false;
+                        // Disable light mode stylesheet to show default dark theme
                         lightStyle.disabled = true;
                         document.body.classList.add('dark');
                         document.body.classList.remove('light');
                     }
                 }
+                
                 if (slider) {
-                    // Default: dark mode (slider off)
+                    // Default: dark mode (slider off) - matches the default CSS
                     setTheme(false);
                     slider.addEventListener('change', function() {
                         if (slider.checked) {
                             setTheme(true);
-                            //console.log('right');
+                            //console.log('light mode');
                         } else {
                             setTheme(false);
-                            //console.log('left');
+                            //console.log('dark mode');
                         }
                     });
                 }
