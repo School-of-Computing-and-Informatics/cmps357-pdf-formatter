@@ -132,6 +132,9 @@ def perform_ocr_on_segments(segments, filename):
             arr = np.array(gray)
             threshold = 160
             binarized = Image.fromarray((arr < threshold).astype('uint8') * 255)
+            # OCR configuration parameters:
+            # --oem 1: Use LSTM OCR Engine Mode (more accurate for modern text)
+            # --psm 6: Assume uniform block of text (good for documents with paragraphs)
             config = '--oem 1 --psm 6'
             text = pytesseract.image_to_string(binarized, lang='eng', config=config)
             print(f"[Segment {i+1}]:\n{text.strip()}\n", flush=True)
