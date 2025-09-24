@@ -14,42 +14,36 @@ UPLOAD_FORM = '''
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PDF Formatter</title>
     <style>
+        /* Base styles - will be overridden by theme styles */
         body {
-            background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
+            transition: background 0.3s ease, color 0.3s ease;
         }
         .container {
-            background: #fff;
             padding: 2.5rem 2rem 2rem 2rem;
             border-radius: 1.2rem;
-            box-shadow: 0 4px 24px 0 rgba(80, 80, 180, 0.10);
             text-align: center;
             max-width: 400px;
             width: 100%;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
         }
         h1 {
-            color: #3730a3;
             margin-bottom: 1.2rem;
             font-size: 1.6rem;
             letter-spacing: 0.01em;
+            transition: color 0.3s ease;
         }
         .drop-area {
-            border: 2px dashed #818cf8;
             border-radius: 0.7rem;
-            background: #f1f5f9;
             padding: 1.2rem 0.5rem;
             margin-bottom: 1.2rem;
             cursor: pointer;
             transition: background 0.2s, border-color 0.2s;
-        }
-        .drop-area.dragover {
-            background: #e0e7ff;
-            border-color: #6366f1;
         }
         .file-list {
             list-style: none;
@@ -58,7 +52,6 @@ UPLOAD_FORM = '''
             min-height: 1.5rem;
         }
         .file-list li {
-            background: #eef2ff;
             border-radius: 0.4rem;
             margin-bottom: 0.5rem;
             padding: 0.5rem 0.8rem;
@@ -67,32 +60,22 @@ UPLOAD_FORM = '''
             justify-content: space-between;
             font-size: 1rem;
             cursor: grab;
-            border: 1px solid #c7d2fe;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
         .file-list li.dragging {
             opacity: 0.5;
         }
-        .file-list li.dragover {
-            border: 2px dashed #6366f1;
-            background: #e0e7ff;
-        }
         .move-btn {
             background: none;
             border: none;
-            color: #6366f1;
             font-size: 1.2rem;
             cursor: pointer;
             margin-left: 0.3rem;
             padding: 0.1rem 0.3rem;
             border-radius: 0.2rem;
-            transition: background 0.15s;
-        }
-        .move-btn:hover {
-            background: #c7d2fe;
+            transition: background 0.15s, color 0.3s ease;
         }
         input[type="submit"] {
-            background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
-            color: #fff;
             border: none;
             border-radius: 0.4rem;
             padding: 0.7rem 2.2rem;
@@ -102,118 +85,115 @@ UPLOAD_FORM = '''
             transition: background 0.2s;
             box-shadow: 0 2px 8px 0 rgba(99, 102, 241, 0.10);
         }
-        input[type="submit"]:hover {
-            background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
-        }
         .footer {
             margin-top: 1.5rem;
-            color: #64748b;
             font-size: 0.95rem;
+            transition: color 0.3s ease;
         }
         #real-file-input {
             display: none;
         }
     </style>
     <style id="dark-mode-style">
-    /* Dark mode */
-    body {
+    /* Dark mode styles */
+    body.dark {
         background: linear-gradient(120deg, #181a20 0%, #232946 100%);
         color: #e0e7ef;
     }
-    .container {
+    body.dark .container {
         background: #232946;
         color: #e0e7ef;
         box-shadow: 0 4px 24px 0 rgba(30, 30, 60, 0.25);
     }
-    h1 {
+    body.dark h1 {
         color: #a5b4fc;
     }
-    .drop-area {
+    body.dark .drop-area {
         border: 2px dashed #6366f1;
         background: #232946;
         color: #e0e7ef;
     }
-    .drop-area.dragover {
+    body.dark .drop-area.dragover {
         background: #3730a3;
         border-color: #a5b4fc;
     }
-    .file-list li {
+    body.dark .file-list li {
         background: #1a1b22;
         color: #e0e7ef;
         border: 1px solid #6366f1;
     }
-    .file-list li.dragover {
+    body.dark .file-list li.dragover {
         border: 2px dashed #a5b4fc;
         background: #3730a3;
     }
-    .move-btn {
+    body.dark .move-btn {
         color: #a5b4fc;
     }
-    .move-btn:hover {
+    body.dark .move-btn:hover {
         background: #3730a3;
     }
-    input[type="submit"] {
+    body.dark input[type="submit"] {
         background: linear-gradient(90deg, #3730a3 0%, #6366f1 100%);
         color: #fff;
     }
-    input[type="submit"]:hover {
+    body.dark input[type="submit"]:hover {
         background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
     }
-    .footer {
+    body.dark .footer {
         color: #a5b4fc;
     }
     </style>
-    <style id="light-mode-style" disabled>
-    /* Light mode */
-    body {
+    <style id="light-mode-style">
+    /* Light mode styles */
+    body.light {
         background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
         color: #22223b;
     }
-    .container {
+    body.light .container {
         background: #fff;
         color: #22223b;
         box-shadow: 0 4px 24px 0 rgba(80, 80, 180, 0.10);
     }
-    h1 {
+    body.light h1 {
         color: #3730a3;
     }
-    .drop-area {
+    body.light .drop-area {
         border: 2px dashed #818cf8;
         background: #f1f5f9;
         color: #22223b;
     }
-    .drop-area.dragover {
+    body.light .drop-area.dragover {
         background: #e0e7ff;
         border-color: #6366f1;
     }
-    .file-list li {
+    body.light .file-list li {
         background: #eef2ff;
         color: #22223b;
         border: 1px solid #c7d2fe;
     }
-    .file-list li.dragover {
+    body.light .file-list li.dragover {
         border: 2px dashed #6366f1;
         background: #e0e7ff;
     }
-    .move-btn {
+    body.light .move-btn {
         color: #6366f1;
     }
-    .move-btn:hover {
+    body.light .move-btn:hover {
         background: #c7d2fe;
     }
-    input[type="submit"] {
+    body.light input[type="submit"] {
         background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
         color: #fff;
     }
-    input[type="submit"]:hover {
+    body.light input[type="submit"]:hover {
         background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
     }
-    .footer {
+    body.light .footer {
         color: #64748b;
     }
     </style>
 </head>
-<body>
+<body class="dark">
     <div class="container">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <h1 style="margin-bottom: 0;">PDF Formatter</h1>
@@ -292,32 +272,26 @@ UPLOAD_FORM = '''
             // Slider toggle event and theme switching
             document.addEventListener('DOMContentLoaded', function() {
                 const slider = document.getElementById('slider-toggle');
-                const darkStyle = document.getElementById('dark-mode-style');
-                const lightStyle = document.getElementById('light-mode-style');
+                
                 function setTheme(isLight) {
+                    const body = document.body;
                     if (isLight) {
-                        darkStyle.disabled = true;
-                        lightStyle.disabled = false;
-                        document.body.classList.add('light');
-                        document.body.classList.remove('dark');
+                        body.classList.remove('dark');
+                        body.classList.add('light');
+                        slider.checked = true;
                     } else {
-                        darkStyle.disabled = false;
-                        lightStyle.disabled = true;
-                        document.body.classList.add('dark');
-                        document.body.classList.remove('light');
+                        body.classList.remove('light');
+                        body.classList.add('dark');
+                        slider.checked = false;
                     }
                 }
+                
                 if (slider) {
                     // Default: dark mode (slider off)
                     setTheme(false);
+                    
                     slider.addEventListener('change', function() {
-                        if (slider.checked) {
-                            setTheme(true);
-                            //console.log('right');
-                        } else {
-                            setTheme(false);
-                            //console.log('left');
-                        }
+                        setTheme(slider.checked);
                     });
                 }
             });
