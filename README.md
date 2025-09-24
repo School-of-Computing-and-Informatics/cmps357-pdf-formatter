@@ -18,8 +18,10 @@ This web application provides an intuitive interface for uploading PDF files and
 - **Padding and Alignment**: Ensures all segments maintain proper dimensions
 - **Batch Processing**: Processes multiple PDF files in a single operation
 - **Download Output**: Generates and downloads a single merged PDF with all processed segments
+- **OCR/Handwriting Recognition**: Extracts text (including handwriting, if possible) from PDF images using Tesseract OCR
 
 ## Dependencies
+
 
 The project requires the following Python packages:
 
@@ -27,6 +29,7 @@ The project requires the following Python packages:
 - `Pillow` (10.3.0) - For image processing and manipulation
 - `numpy` (1.26.4) - For numerical operations on image arrays
 - `Flask` (3.0.0) - Web framework for the user interface
+- `pytesseract` (0.3.10) - Python wrapper for Tesseract OCR (for text/handwriting recognition)
 
 All dependencies are listed in `requirements.txt`.
 
@@ -44,20 +47,33 @@ All dependencies are listed in `requirements.txt`.
    pip install -r requirements.txt
    ```
 
-3. **Additional system dependencies (for pdf2image):**
-   
-   **On Ubuntu/Debian:**
-   ```bash
-   sudo apt-get install poppler-utils
-   ```
-   
-   **On macOS:**
-   ```bash
-   brew install poppler
-   ```
-   
-   **On Windows:**
-   Download and install poppler from [poppler for Windows](http://blog.alivate.com.au/poppler-windows/)
+
+3. **Additional system dependencies:**
+
+    - **For pdf2image:**
+       - **Ubuntu/Debian:**
+          ```bash
+          sudo apt-get install poppler-utils
+          ```
+       - **macOS:**
+          ```bash
+          brew install poppler
+          ```
+       - **Windows:**
+          Download and install poppler from [poppler for Windows](http://blog.alivate.com.au/poppler-windows/)
+
+    - **For OCR/Handwriting Recognition:**
+       - **Tesseract OCR must be installed and on your PATH.**
+       - **Ubuntu/Debian:**
+          ```bash
+          sudo apt-get install tesseract-ocr
+          ```
+       - **macOS:**
+          ```bash
+          brew install tesseract
+          ```
+       - **Windows:**
+          Download and install Tesseract from [UB Mannheim builds](https://github.com/UB-Mannheim/tesseract/wiki) or [official repo](https://github.com/tesseract-ocr/tesseract). Add the install directory (e.g., `C:\Program Files\Tesseract-OCR`) to your PATH.
 
 ## Usage
 
@@ -82,7 +98,7 @@ All dependencies are listed in `requirements.txt`.
 
 ### Command Line (Alternative)
 
-For batch processing without the web interface:
+For batch processing and OCR (text/handwriting extraction) without the web interface:
 
 1. **Prepare your PDF files:**
    - Create a `PDFS` directory in the project root
@@ -94,6 +110,7 @@ For batch processing without the web interface:
    ```
 
 3. **Output:**
+   - The console will display recognized text for each PDF segment (using Tesseract OCR)
    - A single output file `output.pdf` will be generated containing all processed segments
 
 ## How It Works
@@ -115,6 +132,7 @@ For batch processing without the web interface:
 - `segment_image_by_aspect_ratio()`: Divides images into standard-sized segments
 - `analyze_bottom_rows()`: Analyzes content distribution for quality assurance
 - `create_pdf_from_images()`: Generates final PDF output with proper formatting
+- **OCR Integration:** Uses `pytesseract` to extract text (including handwriting, if possible) from each image segment
 
 ## File Structure
 
