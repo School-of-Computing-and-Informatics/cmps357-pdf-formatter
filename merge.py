@@ -1,6 +1,7 @@
 import os
 from pdf2image import convert_from_path
 from PIL import Image
+import pytesseract
 import numpy as np
 
 def crop_pdf_first_page(pdf_path):
@@ -121,7 +122,27 @@ def create_pdf_from_images(images, output_pdf, margin_in=0.5, page_w_in=8.5, pag
         print(f"Saved all pages to {output_pdf}")
 
 if __name__ == "__main__":
+    import glob
+    import os
+    import sys
+    print("[merge.py] Script started", flush=True)
+    # Find all PDFs in PDFS/ directory
     pdf_dir = "PDFS"
+    pdf_files = [f for f in glob.glob(os.path.join(pdf_dir, '*.pdf'))]
+    print(f"Found {len(pdf_files)} PDF(s) in {pdf_dir}", flush=True)
+    if not pdf_files:
+        print("No PDF files found. Exiting.", flush=True)
+        sys.exit(0)
+    for pdf_path in pdf_files:
+        print(f"\n--- OCR for: {os.path.basename(pdf_path)} ---", flush=True)
+        try:
+            cropped_img = crop_pdf_first_page(pdf_path)
+            segments = segment_image_by_aspect_ratio(cropped_img, 8.5, 11)
+            for i, segment in enumerate(segments):
+                text = pytesseract.image_to_string(segment, lang='eng')
+                print(f"[Segment {i+1}]:\n{text.strip()}\n", flush=True)
+        except Exception as e:
+            print(f"Error processing {pdf_path}: {e}", flush=True)
     all_segments = []
     for fname in os.listdir(pdf_dir):
         if fname.lower().endswith(".pdf"):
