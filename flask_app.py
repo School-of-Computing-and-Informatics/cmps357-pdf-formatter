@@ -289,8 +289,9 @@ UPLOAD_FORM = '''
         }
         </style>
         <script>
-            // Slider toggle event and theme switching
+            // All JavaScript initialization inside DOMContentLoaded to ensure proper loading in new windows
             document.addEventListener('DOMContentLoaded', function() {
+                // Slider toggle event and theme switching
                 const slider = document.getElementById('slider-toggle');
                 const darkStyle = document.getElementById('dark-mode-style');
                 const lightStyle = document.getElementById('light-mode-style');
@@ -320,139 +321,141 @@ UPLOAD_FORM = '''
                         }
                     });
                 }
-            });
-        const dropArea = document.getElementById('drop-area');
-        const realInput = document.getElementById('real-file-input');
-        const fileList = document.getElementById('file-list');
-        let files = [];
+                
+                // File drop area and PDF processing functionality
+                const dropArea = document.getElementById('drop-area');
+                const realInput = document.getElementById('real-file-input');
+                const fileList = document.getElementById('file-list');
+                let files = [];
 
-        dropArea.addEventListener('click', () => realInput.click());
-        dropArea.addEventListener('dragover', e => {
-            e.preventDefault();
-            dropArea.classList.add('dragover');
-        });
-        dropArea.addEventListener('dragleave', e => {
-            e.preventDefault();
-            dropArea.classList.remove('dragover');
-        });
-        dropArea.addEventListener('drop', e => {
-            e.preventDefault();
-            dropArea.classList.remove('dragover');
-            addFiles(e.dataTransfer.files);
-        });
-        realInput.addEventListener('change', e => {
-            addFiles(e.target.files);
-            realInput.value = '';
-        });
+                dropArea.addEventListener('click', () => realInput.click());
+                dropArea.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    dropArea.classList.add('dragover');
+                });
+                dropArea.addEventListener('dragleave', e => {
+                    e.preventDefault();
+                    dropArea.classList.remove('dragover');
+                });
+                dropArea.addEventListener('drop', e => {
+                    e.preventDefault();
+                    dropArea.classList.remove('dragover');
+                    addFiles(e.dataTransfer.files);
+                });
+                realInput.addEventListener('change', e => {
+                    addFiles(e.target.files);
+                    realInput.value = '';
+                });
 
-        function addFiles(fileListObj) {
-            for (let f of fileListObj) {
-                if (f.type === 'application/pdf' && !files.some(existing => existing.name === f.name && existing.size === f.size)) {
-                    files.push(f);
+                function addFiles(fileListObj) {
+                    for (let f of fileListObj) {
+                        if (f.type === 'application/pdf' && !files.some(existing => existing.name === f.name && existing.size === f.size)) {
+                            files.push(f);
+                        }
+                    }
+                    renderFileList();
                 }
-            }
-            renderFileList();
-        }
 
-        function renderFileList() {
-            fileList.innerHTML = '';
-            files.forEach((file, idx) => {
-                const li = document.createElement('li');
-                li.textContent = file.name;
-                // Move up button
-                const upBtn = document.createElement('button');
-                upBtn.innerHTML = '↑';
-                upBtn.className = 'move-btn';
-                upBtn.title = 'Move up';
-                upBtn.disabled = idx === 0;
-                upBtn.onclick = e => {
-                    e.preventDefault();
-                    if (idx > 0) {
-                        [files[idx-1], files[idx]] = [files[idx], files[idx-1]];
-                        renderFileList();
-                    }
-                };
-                // Move down button
-                const downBtn = document.createElement('button');
-                downBtn.innerHTML = '↓';
-                downBtn.className = 'move-btn';
-                downBtn.title = 'Move down';
-                downBtn.disabled = idx === files.length-1;
-                downBtn.onclick = e => {
-                    e.preventDefault();
-                    if (idx < files.length-1) {
-                        [files[idx+1], files[idx]] = [files[idx], files[idx+1]];
-                        renderFileList();
-                    }
-                };
-                li.appendChild(upBtn);
-                li.appendChild(downBtn);
+                function renderFileList() {
+                    fileList.innerHTML = '';
+                    files.forEach((file, idx) => {
+                        const li = document.createElement('li');
+                        li.textContent = file.name;
+                        // Move up button
+                        const upBtn = document.createElement('button');
+                        upBtn.innerHTML = '↑';
+                        upBtn.className = 'move-btn';
+                        upBtn.title = 'Move up';
+                        upBtn.disabled = idx === 0;
+                        upBtn.onclick = e => {
+                            e.preventDefault();
+                            if (idx > 0) {
+                                [files[idx-1], files[idx]] = [files[idx], files[idx-1]];
+                                renderFileList();
+                            }
+                        };
+                        // Move down button
+                        const downBtn = document.createElement('button');
+                        downBtn.innerHTML = '↓';
+                        downBtn.className = 'move-btn';
+                        downBtn.title = 'Move down';
+                        downBtn.disabled = idx === files.length-1;
+                        downBtn.onclick = e => {
+                            e.preventDefault();
+                            if (idx < files.length-1) {
+                                [files[idx+1], files[idx]] = [files[idx], files[idx+1]];
+                                renderFileList();
+                            }
+                        };
+                        li.appendChild(upBtn);
+                        li.appendChild(downBtn);
 
-                // Drag-and-drop attributes and handlers
-                li.setAttribute('draggable', 'true');
-                li.dataset.idx = idx;
+                        // Drag-and-drop attributes and handlers
+                        li.setAttribute('draggable', 'true');
+                        li.dataset.idx = idx;
 
-                li.addEventListener('dragstart', function(e) {
-                    li.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('text/plain', idx);
-                });
-                li.addEventListener('dragend', function(e) {
-                    li.classList.remove('dragging');
-                });
-                li.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    li.classList.add('dragover');
-                });
-                li.addEventListener('dragleave', function(e) {
-                    li.classList.remove('dragover');
-                });
-                li.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    li.classList.remove('dragover');
-                    const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
-                    const toIdx = idx;
-                    if (fromIdx !== toIdx) {
-                        const moved = files.splice(fromIdx, 1)[0];
-                        files.splice(toIdx, 0, moved);
-                        renderFileList();
-                    }
-                });
+                        li.addEventListener('dragstart', function(e) {
+                            li.classList.add('dragging');
+                            e.dataTransfer.effectAllowed = 'move';
+                            e.dataTransfer.setData('text/plain', idx);
+                        });
+                        li.addEventListener('dragend', function(e) {
+                            li.classList.remove('dragging');
+                        });
+                        li.addEventListener('dragover', function(e) {
+                            e.preventDefault();
+                            li.classList.add('dragover');
+                        });
+                        li.addEventListener('dragleave', function(e) {
+                            li.classList.remove('dragover');
+                        });
+                        li.addEventListener('drop', function(e) {
+                            e.preventDefault();
+                            li.classList.remove('dragover');
+                            const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                            const toIdx = idx;
+                            if (fromIdx !== toIdx) {
+                                const moved = files.splice(fromIdx, 1)[0];
+                                files.splice(toIdx, 0, moved);
+                                renderFileList();
+                            }
+                        });
 
-                fileList.appendChild(li);
-            });
-        }
-
-        // On submit, build a FormData with files in the chosen order
-        document.getElementById('pdf-form').addEventListener('submit', function(e) {
-            if (!files.length) {
-                alert('Please select at least one PDF file.');
-                e.preventDefault();
-                return;
-            }
-            const formData = new FormData();
-            files.forEach(f => formData.append('pdf_file', f));
-            // Submit via fetch to preserve order
-            e.preventDefault();
-            fetch('/', {
-                method: 'POST',
-                body: formData
-            }).then(async resp => {
-                if (resp.ok) {
-                    const blob = await resp.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'formatted.pdf';
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    window.URL.revokeObjectURL(url);
-                } else {
-                    alert('Error processing PDF(s).');
+                        fileList.appendChild(li);
+                    });
                 }
-            });
-        });
+
+                // On submit, build a FormData with files in the chosen order
+                document.getElementById('pdf-form').addEventListener('submit', function(e) {
+                    if (!files.length) {
+                        alert('Please select at least one PDF file.');
+                        e.preventDefault();
+                        return;
+                    }
+                    const formData = new FormData();
+                    files.forEach(f => formData.append('pdf_file', f));
+                    // Submit via fetch to preserve order
+                    e.preventDefault();
+                    fetch('/', {
+                        method: 'POST',
+                        body: formData
+                    }).then(async resp => {
+                        if (resp.ok) {
+                            const blob = await resp.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'formatted.pdf';
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            window.URL.revokeObjectURL(url);
+                        } else {
+                            alert('Error processing PDF(s).');
+                        }
+                    });
+                });
+            }); // Close DOMContentLoaded event handler
     </script>
 </body>
 </html>
