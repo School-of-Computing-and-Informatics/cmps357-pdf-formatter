@@ -1,19 +1,23 @@
-# CMPS 357 PDF Formatter
+# CMPS 357 PDF Formatter - Web Frontend
 
-A Python utility for processing and reformatting PDF documents by segmenting them into standardized pages with proper aspect ratios.
+A Python Flask web application for processing and reformatting PDF documents by segmenting them into standardized pages with proper aspect ratios.
 
 ## Overview
 
-This tool takes PDF files and segments them into properly formatted pages with a standard 8.5:11 aspect ratio (US Letter format). It crops, segments, and reformats PDF content to create clean, uniform output suitable for printing or digital distribution.
+This web application provides an intuitive interface for uploading PDF files and automatically processing them into properly formatted pages with a standard 8.5:11 aspect ratio (US Letter format). The tool crops, segments, and reformats PDF content to create clean, uniform output suitable for printing or digital distribution.
 
 ## Features
 
+- **Web-Based Interface**: Easy-to-use drag-and-drop file upload with dark/light theme support
+- **Multiple File Support**: Process multiple PDF files simultaneously 
+- **File Management**: Reorder files before processing with drag-and-drop interface
+- **Real-Time Processing**: Upload files and receive processed PDF immediately
 - **PDF to Image Conversion**: Converts PDF pages to images for processing
 - **Intelligent Cropping**: Automatically detects and crops content boundaries
 - **Vertical Segmentation**: Splits tall images into multiple segments with consistent aspect ratios
 - **Padding and Alignment**: Ensures all segments maintain proper dimensions
-- **Batch Processing**: Processes multiple PDF files from a directory
-- **Output Generation**: Creates a single merged PDF with all processed segments
+- **Batch Processing**: Processes multiple PDF files in a single operation
+- **Download Output**: Generates and downloads a single merged PDF with all processed segments
 
 ## Dependencies
 
@@ -22,6 +26,7 @@ The project requires the following Python packages:
 - `pdf2image` (1.17.0) - For converting PDF files to images
 - `Pillow` (10.3.0) - For image processing and manipulation
 - `numpy` (1.26.4) - For numerical operations on image arrays
+- `Flask` (3.0.0) - Web framework for the user interface
 
 All dependencies are listed in `requirements.txt`.
 
@@ -31,6 +36,7 @@ All dependencies are listed in `requirements.txt`.
    ```bash
    git clone https://github.com/School-of-Computing-and-Informatics/cmps357-pdf-formatter.git
    cd cmps357-pdf-formatter
+   git checkout frontend  # Switch to frontend branch
    ```
 
 2. **Install Python dependencies:**
@@ -55,6 +61,29 @@ All dependencies are listed in `requirements.txt`.
 
 ## Usage
 
+### Web Application (Recommended)
+
+1. **Start the Flask web server:**
+   ```bash
+   python flask_app.py
+   ```
+
+2. **Open your web browser and navigate to:**
+   ```
+   http://localhost:5000
+   ```
+
+3. **Use the web interface:**
+   - Drag and drop PDF files onto the upload area or click to browse files
+   - Reorder files by dragging them in the file list if needed
+   - Toggle between dark and light themes using the theme switch
+   - Click "Process PDFs" to upload and process your files
+   - The processed PDF will automatically download as `formatted.pdf`
+
+### Command Line (Alternative)
+
+For batch processing without the web interface:
+
 1. **Prepare your PDF files:**
    - Create a `PDFS` directory in the project root
    - Place your PDF files in the `PDFS` directory
@@ -65,19 +94,20 @@ All dependencies are listed in `requirements.txt`.
    ```
 
 3. **Output:**
-   - The tool will process all PDF files in the `PDFS` directory
    - A single output file `output.pdf` will be generated containing all processed segments
 
 ## How It Works
 
 ### Processing Pipeline
 
-1. **PDF Conversion**: Each PDF is converted to images using `pdf2image`
-2. **Content Detection**: Intelligent cropping removes white space and detects actual content boundaries
-3. **Segmentation**: Images are divided into vertical segments with 8.5:11 aspect ratio
-4. **Padding**: Final segments are padded to maintain consistent dimensions
-5. **Analysis**: Each segment is analyzed for content distribution (useful for debugging)
-6. **PDF Generation**: All segments are compiled into a single output PDF with proper margins
+1. **PDF Upload**: Files are uploaded through the web interface or placed in the PDFS directory
+2. **PDF Conversion**: Each PDF is converted to images using `pdf2image`
+3. **Content Detection**: Intelligent cropping removes white space and detects actual content boundaries
+4. **Segmentation**: Images are divided into vertical segments with 8.5:11 aspect ratio
+5. **Padding**: Final segments are padded to maintain consistent dimensions
+6. **Analysis**: Each segment is analyzed for content distribution (useful for debugging)
+7. **PDF Generation**: All segments are compiled into a single output PDF with proper margins
+8. **Download**: The processed PDF is sent to the user for download
 
 ### Key Functions
 
@@ -90,22 +120,29 @@ All dependencies are listed in `requirements.txt`.
 
 ```
 cmps357-pdf-formatter/
-├── merge.py              # Main processing script
-├── requirements.txt      # Python dependencies
+├── flask_app.py          # Flask web application
+├── merge.py              # Core PDF processing functions
+├── requirements.txt      # Python dependencies (Flask + processing libs)
 ├── README.md            # This file
-├── .gitignore           # Git ignore rules (excludes PDFs and PNGs)
+├── .gitignore           # Git ignore rules (excludes PDFs, PNGs, and temp files)
 ├── chatlog-09172025.md  # Development history and notes
-└── PDFS/               # Directory for input PDF files (create this)
+└── PDFS/               # Directory for input PDF files (for CLI usage)
 ```
 
 ## Development Notes
 
+- The web application provides a modern, responsive interface with dark/light theme support
 - The tool is designed to handle portrait-oriented content as the default
 - Segments are analyzed for content density to ensure quality
 - The final segment in each image is padded with white space to maintain consistency
 - All PDF and PNG files are ignored by git to avoid committing large binary files
+- The Flask app runs in debug mode by default for development
 
 ## Troubleshooting
+
+**Flask app won't start:**
+- Ensure you've installed the requirements: `pip install -r requirements.txt`
+- Check that Flask is properly installed: `python -c "import flask; print(flask.__version__)"`
 
 **"No module named 'pdf2image'" error:**
 - Ensure you've installed the requirements: `pip install -r requirements.txt`
@@ -115,9 +152,15 @@ cmps357-pdf-formatter/
 - Check that your PDF files are not corrupted
 - Ensure the PDF contains actual content (not just blank pages)
 
-**Output PDF is empty:**
-- Verify that the `PDFS` directory exists and contains PDF files
-- Check that the PDF files have the `.pdf` extension (case-insensitive)
+**Upload fails in web interface:**
+- Verify that you're uploading valid PDF files
+- Check browser console for any JavaScript errors
+- Ensure Flask app has write permissions for temporary files
+
+**Web page not loading:**
+- Ensure the Flask app is running: `python flask_app.py`
+- Check that you're accessing the correct URL: `http://localhost:5000`
+- Verify no other application is using port 5000
 
 ## Contributing
 

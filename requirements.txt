@@ -2,3 +2,6 @@
 pdf2image==1.17.0
 Pillow==10.3.0
 numpy==1.26.4
+
+# Web framework dependencies for Flask frontend
+Flask==3.0.0
