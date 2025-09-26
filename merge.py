@@ -127,16 +127,21 @@ def perform_ocr_on_segments(segments, filename):
     print(f"\n--- OCR for: {filename} ---", flush=True)
     try:
         for i, segment in enumerate(segments):
-            # Preprocess: binarize (threshold) the image for better handwriting OCR
-            gray = segment.convert('L')
-            arr = np.array(gray)
-            threshold = 160
-            binarized = Image.fromarray((arr < threshold).astype('uint8') * 255)
+            # Preprocess: binarize for multicolored, full-intensity handwriting on whitish background
+            arr = np.array(segment.convert('RGB'))
+            # Consider a pixel background if all channels are near 255 (very light)
+            bg_mask = (arr[...,0] > 235) & (arr[...,1] > 235) & (arr[...,2] > 235)
+            # Foreground: at least one channel is strongly colored (e.g., >180)
+            fg_mask = ((arr[...,0] > 180) | (arr[...,1] > 180) | (arr[...,2] > 180)) & (~bg_mask)
+            # Build a binary image: foreground=black, background=white
+            binarized = np.ones(arr.shape[:2], dtype='uint8') * 255
+            binarized[fg_mask] = 0
+            bin_img = Image.fromarray(binarized)
             # OCR configuration parameters:
             # --oem 1: Use LSTM OCR Engine Mode (more accurate for modern text)
             # --psm 6: Assume uniform block of text (good for documents with paragraphs)
             config = '--oem 1 --psm 6'
-            text = pytesseract.image_to_string(binarized, lang='eng', config=config)
+            text = pytesseract.image_to_string(bin_img, lang='eng', config=config)
             print(f"[Segment {i+1}]:\n{text.strip()}\n", flush=True)
     except Exception as e:
         print(f"Error performing OCR on {filename}: {e}", flush=True)
