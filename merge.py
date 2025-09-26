@@ -121,40 +121,57 @@ def create_pdf_from_images(images, output_pdf, margin_in=0.5, page_w_in=8.5, pag
         pdf_pages[0].save(output_pdf, save_all=True, append_images=pdf_pages[1:])
         print(f"Saved all pages to {output_pdf}")
 
-if __name__ == "__main__":
+def perform_ocr_on_segments(segments, filename):
+    """Perform OCR on image segments and print results to console"""
+    import pytesseract
+    print(f"\n--- OCR for: {filename} ---", flush=True)
+    try:
+        for i, segment in enumerate(segments):
+            # Preprocess: binarize (threshold) the image for better handwriting OCR
+            gray = segment.convert('L')
+            arr = np.array(gray)
+            threshold = 160
+            binarized = Image.fromarray((arr < threshold).astype('uint8') * 255)
+            # OCR configuration parameters:
+            # --oem 1: Use LSTM OCR Engine Mode (more accurate for modern text)
+            # --psm 6: Assume uniform block of text (good for documents with paragraphs)
+            config = '--oem 1 --psm 6'
+            text = pytesseract.image_to_string(binarized, lang='eng', config=config)
+            print(f"[Segment {i+1}]:\n{text.strip()}\n", flush=True)
+    except Exception as e:
+        print(f"Error performing OCR on {filename}: {e}", flush=True)
+
+def process_pdfs_directory(pdf_dir="PDFS"):
+    """Process all PDFs in a directory (for CLI usage)"""
     import glob
-    import os
     import sys
+    
     print("[merge.py] Script started", flush=True)
     # Find all PDFs in PDFS/ directory
-    pdf_dir = "PDFS"
     pdf_files = [f for f in glob.glob(os.path.join(pdf_dir, '*.pdf'))]
     print(f"Found {len(pdf_files)} PDF(s) in {pdf_dir}", flush=True)
     if not pdf_files:
         print("No PDF files found. Exiting.", flush=True)
         sys.exit(0)
+    
+    # OCR processing
     for pdf_path in pdf_files:
-        print(f"\n--- OCR for: {os.path.basename(pdf_path)} ---", flush=True)
         try:
             cropped_img = crop_pdf_first_page(pdf_path)
             segments = segment_image_by_aspect_ratio(cropped_img, 8.5, 11)
-            for i, segment in enumerate(segments):
-                # Preprocess: binarize (threshold) the image for better handwriting OCR
-                gray = segment.convert('L')
-                arr = np.array(gray)
-                threshold = 160
-                binarized = Image.fromarray((arr < threshold).astype('uint8') * 255)
-                config = '--oem 1 --psm 6'
-                text = pytesseract.image_to_string(binarized, lang='eng', config=config)
-                print(f"[Segment {i+1}]:\n{text.strip()}\n", flush=True)
+            perform_ocr_on_segments(segments, os.path.basename(pdf_path))
         except Exception as e:
             print(f"Error processing {pdf_path}: {e}", flush=True)
+    
+    # PDF processing
     all_segments = []
     for fname in os.listdir(pdf_dir):
         if fname.lower().endswith(".pdf"):
             pdf_path = os.path.join(pdf_dir, fname)
-            base = os.path.splitext(fname)[0]
             cropped_img = crop_pdf_first_page(pdf_path)
             segments = segment_image_by_aspect_ratio(cropped_img, 8.5, 11)
             all_segments.extend(segments)
     create_pdf_from_images(all_segments, "output.pdf")
+
+if __name__ == "__main__":
+    process_pdfs_directory()

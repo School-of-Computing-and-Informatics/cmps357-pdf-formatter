@@ -59,8 +59,19 @@ All dependencies are listed in `requirements.txt`.
           ```bash
           brew install poppler
           ```
-       - **Windows:**
-          Download and install poppler from [poppler for Windows](http://blog.alivate.com.au/poppler-windows/)
+          - **Windows:**
+               Download and install poppler from [poppler for Windows](http://blog.alivate.com.au/poppler-windows/)
+          
+    - **Add Python Scripts to PATH (Windows):**
+       If you see warnings like:
+       > The script f2py.exe is installed in 'C:\Users\YourName\AppData\Roaming\Python\Python312\Scripts' which is not on PATH.
+       Add this directory to your PATH. In PowerShell, run:
+       ```powershell
+       $env:Path += ";C:\Users\YourName\AppData\Roaming\Python\Python312\Scripts"
+       # To make it permanent for your user:
+       [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Users\YourName\AppData\Roaming\Python\Python312\Scripts", "User")
+       ```
+       Replace `YourName` with your Windows username.
 
     - **For OCR/Handwriting Recognition:**
        - **Tesseract OCR must be installed and on your PATH.**
@@ -73,7 +84,13 @@ All dependencies are listed in `requirements.txt`.
           brew install tesseract
           ```
        - **Windows:**
-          Download and install Tesseract from [UB Mannheim builds](https://github.com/UB-Mannheim/tesseract/wiki) or [official repo](https://github.com/tesseract-ocr/tesseract). Add the install directory (e.g., `C:\Program Files\Tesseract-OCR`) to your PATH.
+          Download and install Tesseract from [UB Mannheim builds](https://github.com/UB-Mannheim/tesseract/wiki) or [official repo](https://github.com/tesseract-ocr/tesseract).
+          Add the install directory (e.g., `C:\Program Files\Tesseract-OCR`) to your PATH. In PowerShell, run:
+          ```powershell
+          $env:Path += ";C:\Program Files\Tesseract-OCR"
+          # To make it permanent for your user:
+          [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files\Tesseract-OCR", "User")
+          ```
 
 ## Usage
 

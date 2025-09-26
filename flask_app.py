@@ -2,7 +2,7 @@ from flask import Flask, request, render_template_string, send_file
 import tempfile
 import os
 import io
-from merge import crop_pdf_first_page, segment_image_by_aspect_ratio, create_pdf_from_images
+from merge import crop_pdf_first_page, segment_image_by_aspect_ratio, create_pdf_from_images, perform_ocr_on_segments
 
 app = Flask(__name__)
 
@@ -474,6 +474,8 @@ def upload_file():
                     file.save(input_path)
                     cropped_img = crop_pdf_first_page(input_path)
                     segments = segment_image_by_aspect_ratio(cropped_img, 8.5, 11)
+                    # Perform OCR on segments and print to console
+                    perform_ocr_on_segments(segments, file.filename)
                     all_segments.extend(segments)
             if not all_segments:
                 return 'No valid PDF files processed', 400
